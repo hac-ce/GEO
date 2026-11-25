@@ -1,0 +1,39 @@
+{
+  "source_root": "User-provided local source snapshot (absolute path omitted)",
+  "note": "These files were adapted from a user-provided local project. Branding artwork from the source snapshot is not included.",
+  "files": [
+    {
+      "source": "app/globals.css",
+      "destination": "src/monitor.css",
+      "sha256": "64a1bebd33b87d968c2027ea1a151046ccfeb345affbe05183751020a7c94ebf"
+    },
+    {
+      "source": "components/workspace-dialog.tsx",
+      "destination": "src/components/Dialog.tsx",
+      "sha256": "77ded84a0435979d454e34793cce9fbce952ae9d5e221a78e66d596818205467"
+    },
+    {
+      "source": "components/answer-content.tsx",
+      "destination": "src/components/AnswerContent.tsx",
+      "sha256": "cfbb8571bb9e854a270bd0872848771ad220656bd1335a2b78dc2343195264c8"
+    },
+    {
+      "source": "app/login/login-form.tsx",
+      "destination": "src/components/AuthGate.tsx",
+      "sha256": "4a55d618bc401a6df9917cbe0a5778031dcbea381570f2feb0df335ae8b92a9a",
+      "note": "Adapted email authentication flow"
+    },
+    {
+      "source": "app/login/login.css",
+      "destination": "src/login.css",
+      "sha256": "522b577b2d010af66a6d0a96bee157594ca97ce99e2d1ce55eb3e1ed4053cdc0",
+      "note": "Adapted email authentication flow"
+    },
+    {
+      "source": "public/login-background-v2.png",
+      "destination": "public/login-background-v2.png",
+      "sha256": "9802b79f0b70e20f22c630ede9a380619229817cb9dece8950401675a2e51c5a",
+      "note": "Copied artwork"
+    }
+  ]
+}

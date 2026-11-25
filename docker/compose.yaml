@@ -1,0 +1,60 @@
+name: geo-learning
+services:
+  redis:
+    image: redis:8.2.3-alpine@sha256:08ad0b1d280850169a790dba1393ff7a90aef951fc19632cf4d3ce4f78e679ba
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      GEO_MODE: ${GEO_MODE:-demo}
+      GEO_DATA_DIR: /data
+      GEO_WORKER_COUNT: ${GEO_WORKER_COUNT:-2}
+      GEO_WORKER_SHUTDOWN_TIMEOUT: ${GEO_WORKER_SHUTDOWN_TIMEOUT:-10}
+      GEO_JOB_LEASE_SECONDS: ${GEO_JOB_LEASE_SECONDS:-60}
+      GEO_JOB_HEARTBEAT_SECONDS: ${GEO_JOB_HEARTBEAT_SECONDS:-15}
+      GEO_JOB_RECOVERY_SECONDS: ${GEO_JOB_RECOVERY_SECONDS:-15}
+      GEO_REDIS_ENABLED: ${GEO_REDIS_ENABLED:-true}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      GEO_REDIS_TTL: ${GEO_REDIS_TTL:-60}
+      GEO_RATE_WINDOW_SECONDS: ${GEO_RATE_WINDOW_SECONDS:-60}
+      GEO_LOGIN_RATE_LIMIT: ${GEO_LOGIN_RATE_LIMIT:-10}
+      GEO_REGISTER_RATE_LIMIT: ${GEO_REGISTER_RATE_LIMIT:-5}
+      GEO_COLLECTION_RATE_LIMIT: ${GEO_COLLECTION_RATE_LIMIT:-10}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GEO_BROWSER_ENABLED: ${GEO_BROWSER_ENABLED:-false}
+      GEO_BROWSER_CHANNEL: chromium
+      GEO_BROWSER_HEADLESS: "true"
+      GEO_BROWSER_TIMEOUT: ${GEO_BROWSER_TIMEOUT:-120}
+    volumes:
+      - geo_data:/data
+    init: true
+    stop_grace_period: 40s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      redis:
+        condition: service_healthy
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "127.0.0.1:${GEO_HTTP_PORT:-8085}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  geo_data:
+  redis_data:

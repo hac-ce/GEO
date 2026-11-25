@@ -1,0 +1,36 @@
+# Rendered by local-deploy.ps1; static build and API share one origin.
+worker_processes 1;
+pid logs/nginx.pid;
+error_log logs/error.log warn;
+events { worker_connections 256; }
+http {
+    include "@@MIME_TYPES@@";
+    default_type application/octet-stream;
+    log_format geo '$remote_addr [$time_local] "$request_method $uri" $status $body_bytes_sent';
+    access_log logs/access.log geo;
+    sendfile on;
+    keepalive_timeout 65;
+    client_body_temp_path temp/client;
+    proxy_temp_path temp/proxy;
+    server {
+        listen 127.0.0.1:@@HTTP_PORT@@;
+        server_name localhost 127.0.0.1;
+        root "@@FRONTEND_ROOT@@";
+        index index.html;
+        client_max_body_size 1m;
+        add_header X-Content-Type-Options nosniff always;
+        location /api/ {
+            # No URI/trailing slash: preserve /api/brands for FastAPI.
+            proxy_pass http://127.0.0.1:@@BACKEND_PORT@@;
+            proxy_set_header Host $http_host;
+            proxy_read_timeout 75s;
+        }
+        location ~ ^/(docs|redoc|openapi\.json)$ {
+            proxy_pass http://127.0.0.1:@@BACKEND_PORT@@;
+            proxy_set_header Host $http_host;
+        }
+        location /assets/ { try_files $uri =404; }
+        location ~ /\. { deny all; }
+        location / { try_files $uri $uri/ /index.html; }
+    }
+}
